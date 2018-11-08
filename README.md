@@ -1,31 +1,80 @@
-![cf](http://i.imgur.com/7v5ASc8.png) 18: Bearer Authorization
-===
+# Bearer Auth
 
-## Learning Objectives
-* Students will be able to create a Bearer Authentication parser
-* Students will be able to implement Access Controls in their HTTP server routes
+## Overview
+This application is a server with bearer authorization for sign up and sign in routes and utilizes MongoDB for storage of users and calendar entries
 
-## Outline
+## Getting Started
+- Clone this repository
+- Ensure node.js is installed
+    - If not, run the command `brew install node` in the terminal
+- Ensure MongoDB is installed
+    - If not, follow the instructions at [https://docs.mongodb.com/manual/installation/](https://docs.mongodb.com/manual/installation/)
+- Navigate to the `18-bearer-authorization` directory and run the command `npm i` to install dependencies
+- Create a .env file
+    - Set `PORT` to `8080`
+    - Set `MONGODB_URI` to `mongodb://localhost:27017/bearerauth`
+    - Set `SECRET` to `password`
+- Create a folder to store the database
+- In the terminal, run the command `mongod --dbpath=[path to database folder]` to start the database server
+- In a different terminal window, run the command `node index.js` to start the web server
 
-### Access Controls
-Access Controls are the selective restriction of resources. Access Controls are implemented everywhere in computer systems. UNIX files have read, write, and execute permissions assigned to owners, groups, and everyone else. Websites have limited access to pages based on the credentials of a user. APIs restrict access to internal and external developers differently.
+## Testing Instructions
+- Open up Postman
+    - Postman can be downloaded at [https://www.getpostman.com/](https://www.getpostman.com/)
 
-In our RESTful APIs, it is important to limit access to clients based on credentials. This means a user (Foo) should not be able to delete a users (Bar) resource, unless Bar said that Foo is allowed to. Limiting what actions a user can preform on a given resource is called Access Control. A user can be given a token at signup and login, and that user can pass that token back to the server on requests with limited access controls. Once the server parses the token, it can determine if the user is authorized to preform the request.
+- To sign up by making a POST request:
+    - Click on the dropdown and change it to POST
+    - Type `localhost:8080/signup` in the address bar
+    - Click on the Body tab and set it to raw
+    - In the body, type a note in JSON with the following format:
+        - `{ "username": "[username]", "password": "[password]", "email": "[email]", "role": "[role]" }`
+        - Role can be set to `user`, `editor`, or `admin`
+    - Click Send
+    - Copy the token for future use
 
-### Bearer Authorization
-Bearer authorization is a common way to send a user token in an HTTP request. The user token is placed after the string 'Bearer ' and the resulting string is set to the Authorization header. Bearer authorization is often used to create routes with access controls. A server can decode the token and determine if the client is authorized to make the request.
+- To sign in by making a POST request:
+    - Click on the dropdown and change it to POST
+    - Type `localhost:8080/signin` in the address bar
+    - Click on the Authorization tab
+        - Click on the Type dropdown and change it to Bearer Token
+        - Paste the token in the Token field
+    - Click Send
 
-```
-let token = '98asdf7987asfd987as98df79a8s7f9d87as98df79a8s7f98as7fd9a8s7df987adfs798'
+- To make a POST request to the Calendar:
+    - Click on the dropdown and change it to POST
+    - Type `localhost:8080/api/calendar` in the address bar
+    - Click on the Authorization tab
+        - Click on the Type dropdown and change it to Bearer Token
+        - Paste the token in the Token field
+    - Click on the Body tab and set it to raw
+    - In the body, type a note in JSON with the following format:
+        - `{ "month": "[month]", "date": "[date]", "note": "[note]", "user": "[user id]" }`
+    - Click Send
 
-request({
-  method: 'POST'
-  url: 'https://api.example.com/notes',
-  data: {content: 'get milk!'},
-  headers: {
-    Authorization: `Bearer ${token}`
-  },
-})
-.then(handleLogin)
-.catch(handleLoginError)
-```
+- To make a GET request to the Calendar:
+    - Click on the dropdown and change it to GET
+    - For the calendar entry, type `localhost:8080/api/calendar/:id` in the address bar
+    - For the user of the calendar entry, type `localhost:8080/api/calendar/:id/user` in the address bar
+    - Click on the Authorization tab
+        - Click on the Type dropdown and change it to Bearer Token
+        - Paste the token in the Token field
+    - Click Send
+
+- To make a DELETE request to the Calendar:
+    - Click on the dropdown and change it to DELETE
+    - For the calendar entry, type `localhost:8080/api/calendar/:id` in the address bar
+    - Click on the Authorization tab
+        - Click on the Type dropdown and change it to Bearer Token
+        - Paste the token in the Token field
+    - Click Send
+
+- To make a PUT request to the Calendar:
+    - Click on the dropdown and change it to PUT
+    - For the calendar entry, type `localhost:8080/api/calendar/:id` in the address bar
+    - Click on the Authorization tab
+        - Click on the Type dropdown and change it to Bearer Token
+        - Paste the token in the Token field
+    - Click on the Body tab and set it to raw
+    - In the body, type a note in JSON with the following format:
+        - `{ "month": "[month]", "date": "[date]", "note": "[note]", "user": "[user id]" }`
+    - Click Send
